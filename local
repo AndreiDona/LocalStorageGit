@@ -1,0 +1,62 @@
+import React, { useEffect, useState } from 'react';
+import './App.css';
+import moment from 'moment';
+
+
+// 1. Afisam ceasul - (new Date()).toString()
+// 1.1. Pentru update - setTimeout  -> cu intervalul la care se updateze
+// 1.1.2. Data curenta se retine pe starea componentei
+
+// 2. Pentru mesajul de dechidere - verificam if(oraCurenta a ajuns la cat vrem noi)
+// 2.1 Verificarea se poate face in useEffect sau in fucnctie ce updateaza data
+// 2.2 Pentru verificari putem folosi moment js
+
+// 3. Pentru afisarea listei de beri: 
+// 3.1 Intr-o stare retinem lista de beri
+// 3.2 Unde apelam fetch-ul ? 
+
+
+function TheBeer(props) {
+  return <div>
+    <h3>{props.BeerName}</h3>
+    <img src={props.BeerURL} alt={'nothing here'} />
+  </div>
+}
+
+function App() {
+
+  const StoredBeerString = localStorage.getItem('myBeers');
+  let StoredBeerArray = JSON.parse(StoredBeerString);
+
+  if (StoredBeerArray === null) {
+    StoredBeerArray = [];
+  }
+
+  let [beersData, updateBeers] = useState(StoredBeerArray);
+
+
+  useEffect(() => {
+
+    fetch('https://api.punkapi.com/v2/beers')
+      .then(response => response.json())
+      .then(data => {
+        console.log(data)
+        updateBeers(data)
+
+        const BeerString = JSON.stringify(data);
+        localStorage.setItem('myBeers', BeerString);
+
+      })
+  }, []);
+
+
+  return (
+    <div className="App">
+
+      {beersData.map(beer => <TheBeer key={beer.id} BeerName={beer.name} BeerURL={beer.image_url} />)}
+
+    </div>
+  );
+}
+
+export default App;
